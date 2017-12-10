@@ -4,8 +4,10 @@ import argparse
 import re
 from collections import defaultdict
 
+import sys
 
-class Automato(object):
+
+class DetAutomato(object):
 
     def __init__(self, start_state, transitions, final_states):
         self.start_state = str(start_state)
@@ -40,16 +42,34 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file")
     args = parser.parse_args()
-    print('Please insert a word to the automato:')
-    input = str(input())
     start_state, final_states, transitions = readfile(args.input_file)
-    automato = Automato(start_state, transitions, final_states)
-    for event in input:
-        if event in automato.state_map[automato.curr_state]:
-            automato.curr_state = automato.state_map[automato.curr_state][event]
-        else:
-            print('Not a valid word. Automato finished in state {}'.format(automato.curr_state))
+    automato = DetAutomato(start_state, transitions, final_states)
+    prompt_list = ['YES', 'yes', 'y', 'Y']
+    question = 'YES'
+    while question in prompt_list:
+        print('Please insert a word to the automato:')
+        word = input()
+        if not word:
+            print('Empty String. End of program')
+            question = input()
+            continue
+        valid = True
+        for event in word:
+            if event in automato.state_map[automato.curr_state]:
+                automato.curr_state = automato.state_map[automato.curr_state][event]
+            else:
+                print('Not a valid word. Automato finished in state {}'.format(automato.curr_state))
+                valid = False
+                break
+        if not valid:
+            print("You want to continue? Type yes for another try:")
+            question = input()
+            continue
         if automato.curr_state in automato.final_states:
-            print('Valid word')
+            print('Valid word. Automato finished in state{}'.format(automato.curr_state))
+            continue
         else:
             print('Not a valid word. Automato finished in state {}'.format(automato.curr_state))
+            continue
+        print('You want to continue? Type yes for another try:')
+        question = input()
