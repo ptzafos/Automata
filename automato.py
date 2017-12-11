@@ -5,6 +5,7 @@ import re
 from collections import defaultdict
 
 import sys
+from itertools import tee
 
 
 class DetAutomato(object):
@@ -22,7 +23,6 @@ def readfile(filename):
     integers_regex = re.compile('\d+')
     # Regular expressions problem
     transitions_regex = re.compile('\d \w \d')
-
     input = open(filename, 'r')
     num_of_states = int(input.readline())
     start_state = int(input.readline())
@@ -49,10 +49,16 @@ if __name__ == "__main__":
     while question in prompt_list:
         print('Please insert a word to the automato:')
         word = input()
+
+        # Case empty string
         if not word:
-            print('Empty String. End of program')
+            print('Empty String.')
+            automato.curr_state = start_state
+            del word
+            print("You want to continue? Type yes for another try:")
             question = input()
             continue
+
         valid = True
         for event in word:
             if event in automato.state_map[automato.curr_state]:
@@ -61,15 +67,22 @@ if __name__ == "__main__":
                 print('Not a valid word. Automato finished in state {}'.format(automato.curr_state))
                 valid = False
                 break
+
+        #Case deadlock
         if not valid:
+            automato.curr_state = start_state
+            del word
             print("You want to continue? Type yes for another try:")
             question = input()
             continue
+
+        #Case final state or not
         if automato.curr_state in automato.final_states:
-            print('Valid word. Automato finished in state{}'.format(automato.curr_state))
-            continue
+            print('Valid word. Automato finished in state {}'.format(automato.curr_state))
         else:
-            print('Not a valid word. Automato finished in state {}'.format(automato.curr_state))
-            continue
+            print('Automato finished in state {} that is not final.'.format(automato.curr_state))
+
+        automato.curr_state = start_state
+        del word
         print('You want to continue? Type yes for another try:')
         question = input()
