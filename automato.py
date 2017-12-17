@@ -16,10 +16,20 @@ class DetAutomato(object):
             self.state_map[trans[0]][trans[2]] = trans[4]
 
 
+
+
 class NonDetAutomato(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, start_state, transitions, final_states):
+
+        self.start_state = str(start_state)
+        self.curr_state = [str(start_state)]
+        self.final_states = list(map(str, final_states))
+        self.state_map = defaultdict(dict)
+        for trans in transitions:
+            self.state_map[trans[0]][trans[2]] = []
+        for trans in transitions:
+            self.state_map[trans[0]][trans[2]].append(trans[4])
 
 # this kind of implementation can just ignore the number of final states and number of transitions.
 # so we can use a smaller input file
