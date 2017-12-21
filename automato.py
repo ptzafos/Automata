@@ -35,7 +35,7 @@ class Automato(object):
             # for a standard event make a new set of current states
             if event in self.state_map[state]:
                 next_state.extend(self.state_map[state][event])
-        # remove dublicates
+        # remove dublicate states from the current states set
         self.curr_state = next_state
         unique_current_states = set(self.curr_state)
         self.curr_state = list(unique_current_states)
@@ -47,7 +47,7 @@ class Automato(object):
 def readfile(filename):
 
     integers_regex = re.compile('\d+')
-    transitions_regex = re.compile('\d [a-z@] \d')
+    transitions_regex = re.compile('\d [0-9a-z@] \d')
 
     input = open(filename, 'r')
     num_of_states = int(input.readline())
@@ -74,6 +74,7 @@ if __name__ == "__main__":
     automato = Automato(start_state, transitions, final_states)
     automato = automato.init_states_check()
     print('Initial State(s): {}'.format(', '.join(automato.curr_state)))
+    # List for terminate or continue the program
     prompt_list = ['YES', 'yes', 'y', 'Y', 'No', 'no', 'N', 'n']
     yes_prompt_list = ['YES', 'yes', 'y', 'Y']
     no_prompt_list = ['No', 'no', 'N', 'n']
@@ -90,15 +91,16 @@ if __name__ == "__main__":
             automato.change_of_state(event)
             if not automato.curr_state:
                 print('Not a valid word. State set is empty'.format(automato.curr_state))
-                # switch to false in order to stop iteration cause a
-                # state was reached that the event could not make a transition
+                # switch to false in order to stop iteration when a
+                # state was reached that there were no transitions possible
+                # for the current event
                 valid = False
                 break
             else:
                 print('Transition from state(s) {} in states {}'.format(', '.join(prev_state),
                                                                         ', '.join(automato.curr_state)))
 
-        # Case deadlock - kill automato - prompt for another word
+        # Case deadlock, state with no feasible transitions, terminate automato
         if not valid:
             print("You want to continue? Type yes for another try or no for termination:")
             question = input()
@@ -128,5 +130,6 @@ if __name__ == "__main__":
         if question in no_prompt_list:
             break
         else:
+            # reset the automato to the starting state
             automato.curr_state = list(str(start_state))
             automato = automato.init_states_check()
